@@ -686,17 +686,20 @@ local function criarEspParaPlayer(player)
 
         local data = {}
 
-        local highlight = Instance.new("Highlight")
-        highlight.FillTransparency = 0.6
-        highlight.OutlineTransparency = 0
-        highlight.FillColor = COR_VERMELHO
-        highlight.OutlineColor = COR_VERMELHO2
-        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        highlight.Adornee = char
-        highlight.Enabled = false
-        highlight.Parent = char
-        data.Highlight = highlight
+        -- BOX (BoxHandleAdornment - aparece sempre through walls)
+        local boxAdorn = Instance.new("BoxHandleAdornment")
+        boxAdorn.Name = "DuduESP_Box"
+        boxAdorn.Adornee = hrp
+        boxAdorn.AlwaysOnTop = true
+        boxAdorn.ZIndex = 5
+        boxAdorn.Size = Vector3.new(4, 6, 4)
+        boxAdorn.Transparency = 0.4
+        boxAdorn.Color3 = COR_VERMELHO2
+        boxAdorn.Visible = false
+        boxAdorn.Parent = hrp
+        data.Highlight = boxAdorn
 
+        -- NAME
         local nameGui = Instance.new("BillboardGui")
         nameGui.Size = UDim2.new(0, 200, 0, 20)
         nameGui.StudsOffset = Vector3.new(0, 3, 0)
@@ -715,6 +718,7 @@ local function criarEspParaPlayer(player)
         nameLabel.Parent = nameGui
         data.NameGui = nameGui
 
+        -- DISTANCE
         local distGui = Instance.new("BillboardGui")
         distGui.Size = UDim2.new(0, 200, 0, 16)
         distGui.StudsOffset = Vector3.new(0, 2.5, 0)
@@ -734,7 +738,7 @@ local function criarEspParaPlayer(player)
         data.DistanceGui = distGui
         data.DistanceLabel = distLabel
 
-        -- HEALTH BAR ABAIXO DO PERSONAGEM
+        -- HEALTH (abaixo do personagem)
         local healthGui = Instance.new("BillboardGui")
         healthGui.Size = UDim2.new(0, 100, 0, 7)
         healthGui.StudsOffset = Vector3.new(0, -3, 0)
@@ -756,7 +760,7 @@ local function criarEspParaPlayer(player)
         data.HealthGui = healthGui
         data.HealthFill = healthFill
 
-        -- LINE (ScreenGui frame)
+        -- LINE (frame no ScreenGui)
         local lineGui = Instance.new("Frame")
         lineGui.Size = UDim2.new(0, 1, 0, 1)
         lineGui.BackgroundColor3 = COR_VERMELHO2
@@ -801,16 +805,29 @@ RunService.RenderStepped:Connect(function()
     for player, data in pairs(espObjects) do
         if player ~= LP and data.Character and data.Character.Parent then
             local ativo = espAtivo
-            if data.Highlight then data.Highlight.Enabled = ativo and espBoxAtivo end
-            if data.NameGui then data.NameGui.Enabled = ativo and espNameAtivo end
+
+            -- BOX (Visible ao invés de Enabled)
+            if data.Highlight then
+                data.Highlight.Visible = ativo and espBoxAtivo
+            end
+
+            if data.NameGui then
+                data.NameGui.Enabled = ativo and espNameAtivo
+            end
+
             if data.HealthGui and data.Humanoid then
                 data.HealthGui.Enabled = ativo and espHealthAtivo
                 local pct = math.clamp(data.Humanoid.Health / data.Humanoid.MaxHealth, 0, 1)
                 data.HealthFill.Size = UDim2.new(pct, 0, 1, 0)
-                if pct > 0.5 then data.HealthFill.BackgroundColor3 = COR_VERDE
-                elseif pct > 0.25 then data.HealthFill.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-                else data.HealthFill.BackgroundColor3 = COR_VERMELHO2 end
+                if pct > 0.5 then
+                    data.HealthFill.BackgroundColor3 = COR_VERDE
+                elseif pct > 0.25 then
+                    data.HealthFill.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+                else
+                    data.HealthFill.BackgroundColor3 = COR_VERMELHO2
+                end
             end
+
             if data.DistanceGui and data.HRP then
                 data.DistanceGui.Enabled = ativo and espDistanceAtivo
                 if espDistanceAtivo then
@@ -819,7 +836,7 @@ RunService.RenderStepped:Connect(function()
                 end
             end
 
-            -- LINES: da minha cabeça até o tronco do player
+            -- LINES: da minha cabeça até o HRP dos outros
             if data.LineGui then
                 if ativo and espLineAtivo and myHead and data.HRP then
                     local fromPos, fromOn = Camera:WorldToViewportPoint(myHead.Position)
@@ -1016,9 +1033,12 @@ local function criarSlider(titulo, valorInicial, minVal, maxVal, posY, onChange)
     return box
 end
 
-criarSlider("WalkSpeed", SPEED_VALOR, 16, 500, 196, function(v)
+criarSlider("WalkSpeed", SPEED_VALOR, 50, 500, 196, function(v)
     SPEED_VALOR = v
-    if speedAtivo then aplicarSpeed() end
+    if speedAtivo then
+        local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum.WalkSpeed = SPEED_VALOR end
+    end
 end)
 
 criarSlider("JumpPower", JUMP_VALOR, 50, 500, 272, function(v)
