@@ -1,4 +1,4 @@
--- Dudu Panel Universal V2 - UI + ESP + Click TP
+-- Dudu Panel Universal V2 - Atualizado
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
@@ -6,7 +6,7 @@ local TweenService = game:GetService("TweenService")
 local LP = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- ============ PALETA ============
+-- PALETA
 local COR_FUNDO       = Color3.fromRGB(18, 18, 20)
 local COR_FUNDO2      = Color3.fromRGB(24, 24, 28)
 local COR_BARRA       = Color3.fromRGB(30, 30, 36)
@@ -15,13 +15,11 @@ local COR_VERMELHO2   = Color3.fromRGB(255, 60, 70)
 local COR_VERM_ESCURO = Color3.fromRGB(120, 15, 20)
 local COR_TEXTO       = Color3.fromRGB(240, 240, 240)
 local COR_TEXTO_FRACO = Color3.fromRGB(150, 150, 160)
-local COR_OFF_BG      = Color3.fromRGB(36, 36, 42)
 local COR_OFF_HOVER   = Color3.fromRGB(46, 46, 54)
 local COR_VERDE       = Color3.fromRGB(40, 200, 80)
 local COR_VERDE_CLARO = Color3.fromRGB(100, 255, 130)
 local COR_PRETO       = Color3.fromRGB(20, 20, 22)
 
--- ============ HELPERS ============
 local function arredondar(obj, raio)
     local c = Instance.new("UICorner")
     c.CornerRadius = UDim.new(0, raio)
@@ -37,7 +35,6 @@ local function gradiente(obj, corA, corB, rotacao)
     return g
 end
 
--- ============ SCREEN GUI ============
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "DuduPanelUniversal"
 ScreenGui.ResetOnSpawn = false
@@ -45,7 +42,6 @@ ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = game.CoreGui
 
--- ============ BOTÃO FLUTUANTE ============
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
 ToggleBtn.Position = UDim2.new(0, 24, 0, 100)
@@ -58,9 +54,8 @@ ToggleBtn.TextSize = 24
 ToggleBtn.AutoButtonColor = false
 ToggleBtn.Active = true
 ToggleBtn.Draggable = true
-ToggleBtn.ZIndex = 5
+ToggleBtn.ZIndex = 10
 ToggleBtn.Parent = ScreenGui
-
 arredondar(ToggleBtn, 14)
 gradiente(ToggleBtn, COR_FUNDO2, COR_FUNDO, 90)
 
@@ -69,21 +64,20 @@ btnStripe.Size = UDim2.new(0.7, 0, 0, 3)
 btnStripe.Position = UDim2.new(0.15, 0, 0, 0)
 btnStripe.BackgroundColor3 = COR_VERMELHO
 btnStripe.BorderSizePixel = 0
-btnStripe.ZIndex = 6
+btnStripe.ZIndex = 11
 btnStripe.Parent = ToggleBtn
 arredondar(btnStripe, 2)
 
--- ============ PAINEL ============
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 460, 0, 500)
+Frame.Size = UDim2.new(0, 460, 0, 520)
 Frame.Position = UDim2.new(0, 24, 0, 165)
 Frame.BackgroundColor3 = COR_FUNDO
 Frame.BorderSizePixel = 0
-Frame.Active = false
+Frame.Active = true
+Frame.Draggable = false
 Frame.Visible = false
 Frame.ZIndex = 3
 Frame.Parent = ScreenGui
-
 arredondar(Frame, 18)
 gradiente(Frame, COR_FUNDO2, COR_FUNDO, 90)
 
@@ -93,11 +87,7 @@ borda.Thickness = 1.5
 borda.Transparency = 0.5
 borda.Parent = Frame
 
--- ============ SISTEMA DE DRAG ============
-local dragging = false
-local dragInput = nil
-local dragStart = nil
-local startPos = nil
+local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
 
 local function updateDrag(input)
     local delta = input.Position - dragStart
@@ -107,7 +97,6 @@ local function updateDrag(input)
     )
 end
 
--- ============ HEADER ============
 local Header = Instance.new("Frame")
 Header.Size = UDim2.new(1, 0, 0, 50)
 Header.BackgroundColor3 = COR_BARRA
@@ -183,14 +172,12 @@ closeBtn.MouseLeave:Connect(function()
     TweenService:Create(closeBtn, TweenInfo.new(0.15), {TextColor3 = COR_VERMELHO2}):Play()
 end)
 
--- ============ DRAG NO HEADER ============
 Header.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = Frame.Position
-
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
@@ -212,15 +199,20 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
--- ============ CONTAINER ============
-local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -20, 0, 440)
+-- SCROLLING CONTENT
+local Content = Instance.new("ScrollingFrame")
+Content.Size = UDim2.new(1, -20, 1, -70)
 Content.Position = UDim2.new(0, 10, 0, 58)
 Content.BackgroundTransparency = 1
+Content.BorderSizePixel = 0
+Content.ScrollBarThickness = 4
+Content.ScrollBarImageColor3 = COR_VERMELHO
+Content.ScrollingDirection = Enum.ScrollingDirection.Y
+Content.CanvasSize = UDim2.new(0, 0, 0, 720)
 Content.ZIndex = 4
+Content.Active = true
 Content.Parent = Frame
 
--- toggle painel
 local painelAberto = false
 ToggleBtn.MouseButton1Click:Connect(function()
     painelAberto = not painelAberto
@@ -234,7 +226,6 @@ closeBtn.MouseButton1Click:Connect(function()
     ToggleBtn.Text = "☰"
 end)
 
--- ============ CRIAR BOTÃO ============
 local function criarBotao(texto, posX, posY, largura)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, largura, 0, 42)
@@ -245,7 +236,6 @@ local function criarBotao(texto, posX, posY, largura)
     btn.AutoButtonColor = false
     btn.ZIndex = 5
     btn.Parent = Content
-
     arredondar(btn, 10)
 
     local g = Instance.new("UIGradient")
@@ -321,23 +311,15 @@ local function setStatus(btn, pill, pillLabel, side, g, ativo)
     end
 end
 
--- ============ ESTADOS ============
-local flyAtivo = false
-local speedAtivo = false
-local infJumpAtivo = false
-local noclipAtivo = false
-local clickTpAtivo = false
+-- ESTADOS
+local flyAtivo, speedAtivo, infJumpAtivo, noclipAtivo, clickTpAtivo = false, false, false, false, false
 local SPEED_VALOR = 100
+local JUMP_VALOR = 50
 
--- ESP
-local espAtivo = false
-local espBoxAtivo = false
-local espLineAtivo = false
-local espDistanceAtivo = false
-local espNameAtivo = false
-local espHealthAtivo = false
+local espAtivo, espBoxAtivo, espLineAtivo = false, false, false
+local espDistanceAtivo, espNameAtivo, espHealthAtivo = false, false, false
 
--- ============ FLY ============
+-- FLY CORRIGIDO
 local flyConnection = nil
 
 local function pararFly()
@@ -357,7 +339,6 @@ end
 
 local function toggleFly()
     if flyAtivo then pararFly() return end
-
     local char = LP.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
@@ -384,24 +365,53 @@ local function toggleFly()
     flyConnection = RunService.RenderStepped:Connect(function()
         if not flyAtivo or not hrp.Parent then pararFly() return end
 
-        local dir = Vector3.zero
-        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += Camera.CFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= Camera.CFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= Camera.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += Camera.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.new(0, 1, 0) end
-        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= Vector3.new(0, 1, 0) end
+        local camCFrame = Camera.CFrame
+        local move = Vector3.zero
 
-        flyBV.Velocity = dir * 80
-        flyBG.CFrame = Camera.CFrame
+        -- PC: WASD
+        if UIS:IsKeyDown(Enum.KeyCode.W) then move += camCFrame.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then move -= camCFrame.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then move -= camCFrame.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then move += camCFrame.RightVector end
+
+        -- MOBILE: joystick via MoveDirection
+        local md = hum.MoveDirection
+        if md.Magnitude > 0.1 then
+            -- MoveDirection já vem em world coords alinhada com a câmera
+            move += md
+        end
+
+        -- Vertical
+        local vertical = 0
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then vertical = 1 end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then vertical = -1 end
+        if hum.Jump then vertical = 1 end
+
+        move = Vector3.new(move.X, 0, move.Z)
+        local finalMove = move + Vector3.new(0, vertical, 0)
+
+        if finalMove.Magnitude > 0.1 then
+            flyBV.Velocity = finalMove.Unit * 80
+        else
+            flyBV.Velocity = Vector3.zero
+        end
+        flyBG.CFrame = camCFrame
     end)
 end
 
--- ============ SPEED ============
+-- SPEED + JUMP
 local function aplicarSpeed()
     local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
     if hum then
         hum.WalkSpeed = speedAtivo and SPEED_VALOR or 16
+    end
+end
+
+local function aplicarJump()
+    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.UseJumpPower = true
+        hum.JumpPower = infJumpAtivo and JUMP_VALOR or 50
     end
 end
 
@@ -410,12 +420,17 @@ local function toggleSpeed()
     aplicarSpeed()
 end
 
-LP.CharacterAdded:Connect(function(char)
+local function toggleInfJump()
+    infJumpAtivo = not infJumpAtivo
+    aplicarJump()
+end
+
+LP.CharacterAdded:Connect(function()
     task.wait(1)
     aplicarSpeed()
+    aplicarJump()
 end)
 
--- ============ INF JUMP ============
 UIS.JumpRequest:Connect(function()
     if infJumpAtivo then
         local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
@@ -423,9 +438,7 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-local function toggleInfJump() infJumpAtivo = not infJumpAtivo end
-
--- ============ NOCLIP ============
+-- NOCLIP
 local noclipConn = nil
 
 local function toggleNoclip()
@@ -452,35 +465,22 @@ local function toggleNoclip()
     end
 end
 
--- ============ CLICK TP ============
+-- CLICK TP
 local clickTpTool = nil
 
 local function criarClickTpTool()
     if clickTpTool then clickTpTool:Destroy() end
-
     local tool = Instance.new("Tool")
     tool.Name = "Click TP"
     tool.RequiresHandle = false
     tool.CanBeDropped = false
-    tool.ToolTip = "Clique em qualquer lugar para teleportar"
     tool.TextureId = "rbxassetid://6031091004"
     tool.Parent = LP.Backpack
-
-    tool.Equipped:Connect(function()
-        local mouse = LP:GetMouse()
-        if mouse then mouse.Icon = "rbxassetid://6031091004" end
-    end)
-
-    tool.Unequipped:Connect(function()
-        local mouse = LP:GetMouse()
-        if mouse then mouse.Icon = "" end
-    end)
 
     tool.Activated:Connect(function()
         if not clickTpAtivo then return end
         local mouse = LP:GetMouse()
         if not mouse then return end
-
         local alvo
         if mouse.Target then
             alvo = mouse.Hit.Position + Vector3.new(0, 3, 0)
@@ -488,7 +488,6 @@ local function criarClickTpTool()
             local ray = Camera:ViewportPointToRay(mouse.X, mouse.Y)
             alvo = ray.Origin + ray.Direction * 500
         end
-
         local char = LP.Character
         if not char then return end
         local hrp = char:FindFirstChild("HumanoidRootPart")
@@ -502,21 +501,12 @@ local function criarClickTpTool()
 end
 
 local function removerClickTpTool()
-    if clickTpTool then
-        clickTpTool:Destroy()
-        clickTpTool = nil
-    end
-    local mouse = LP:GetMouse()
-    if mouse then mouse.Icon = "" end
+    if clickTpTool then clickTpTool:Destroy() clickTpTool = nil end
 end
 
 local function toggleClickTp()
     clickTpAtivo = not clickTpAtivo
-    if clickTpAtivo then
-        criarClickTpTool()
-    else
-        removerClickTpTool()
-    end
+    if clickTpAtivo then criarClickTpTool() else removerClickTpTool() end
 end
 
 LP.CharacterAdded:Connect(function()
@@ -524,7 +514,7 @@ LP.CharacterAdded:Connect(function()
     if clickTpAtivo then criarClickTpTool() end
 end)
 
--- ============ SISTEMA ESP ============
+-- ESP
 local espObjects = {}
 
 local function criarEspParaPlayer(player)
@@ -540,9 +530,7 @@ local function criarEspParaPlayer(player)
 
         local data = {}
 
-        -- Highlight (box)
         local highlight = Instance.new("Highlight")
-        highlight.Name = "DuduESP_Box"
         highlight.FillTransparency = 0.7
         highlight.OutlineTransparency = 0
         highlight.FillColor = COR_VERMELHO
@@ -553,15 +541,12 @@ local function criarEspParaPlayer(player)
         highlight.Parent = char
         data.Highlight = highlight
 
-        -- Name
         local nameGui = Instance.new("BillboardGui")
-        nameGui.Name = "DuduESP_Name"
         nameGui.Size = UDim2.new(0, 200, 0, 20)
         nameGui.StudsOffset = Vector3.new(0, 3, 0)
         nameGui.AlwaysOnTop = true
         nameGui.Enabled = false
         nameGui.Parent = head
-
         local nameLabel = Instance.new("TextLabel")
         nameLabel.Size = UDim2.new(1, 0, 1, 0)
         nameLabel.BackgroundTransparency = 1
@@ -574,15 +559,12 @@ local function criarEspParaPlayer(player)
         nameLabel.Parent = nameGui
         data.NameGui = nameGui
 
-        -- Distance
         local distGui = Instance.new("BillboardGui")
-        distGui.Name = "DuduESP_Distance"
         distGui.Size = UDim2.new(0, 200, 0, 16)
         distGui.StudsOffset = Vector3.new(0, 2.5, 0)
         distGui.AlwaysOnTop = true
         distGui.Enabled = false
         distGui.Parent = head
-
         local distLabel = Instance.new("TextLabel")
         distLabel.Size = UDim2.new(1, 0, 1, 0)
         distLabel.BackgroundTransparency = 1
@@ -596,35 +578,28 @@ local function criarEspParaPlayer(player)
         data.DistanceGui = distGui
         data.DistanceLabel = distLabel
 
-        -- Health
         local healthGui = Instance.new("BillboardGui")
-        healthGui.Name = "DuduESP_Health"
         healthGui.Size = UDim2.new(0, 100, 0, 6)
         healthGui.StudsOffset = Vector3.new(0, 3.7, 0)
         healthGui.AlwaysOnTop = true
         healthGui.Enabled = false
         healthGui.Parent = head
-
         local healthBg = Instance.new("Frame")
         healthBg.Size = UDim2.new(1, 0, 1, 0)
         healthBg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
         healthBg.BorderSizePixel = 0
         healthBg.Parent = healthGui
         arredondar(healthBg, 3)
-
         local healthFill = Instance.new("Frame")
         healthFill.Size = UDim2.new(1, 0, 1, 0)
         healthFill.BackgroundColor3 = COR_VERDE
         healthFill.BorderSizePixel = 0
         healthFill.Parent = healthBg
         arredondar(healthFill, 3)
-
         data.HealthGui = healthGui
         data.HealthFill = healthFill
 
-        -- Lines / Tracer
         local lineGui = Instance.new("Frame")
-        lineGui.Name = "DuduESP_Line"
         lineGui.Size = UDim2.new(0, 2, 0, 0)
         lineGui.BackgroundColor3 = COR_VERMELHO2
         lineGui.BorderSizePixel = 0
@@ -638,13 +613,10 @@ local function criarEspParaPlayer(player)
         data.Humanoid = hum
         data.HRP = hrp
         data.Head = head
-
         espObjects[player] = data
     end
 
-    if player.Character then
-        adicionarEsp(player.Character)
-    end
+    if player.Character then adicionarEsp(player.Character) end
     player.CharacterAdded:Connect(adicionarEsp)
 end
 
@@ -660,42 +632,23 @@ local function removerEspDePlayer(player)
     end
 end
 
-local function removerTodoEsp()
-    for player, _ in pairs(espObjects) do
-        removerEspDePlayer(player)
-    end
-    espObjects = {}
-end
-
-for _, p in ipairs(Players:GetPlayers()) do
-    criarEspParaPlayer(p)
-end
+for _, p in ipairs(Players:GetPlayers()) do criarEspParaPlayer(p) end
 Players.PlayerAdded:Connect(criarEspParaPlayer)
 Players.PlayerRemoving:Connect(removerEspDePlayer)
 
--- Loop ESP
 RunService.RenderStepped:Connect(function()
     for player, data in pairs(espObjects) do
         if player ~= LP and data.Character and data.Character.Parent then
             local ativo = espAtivo
-
-            if data.Highlight then
-                data.Highlight.Enabled = ativo and espBoxAtivo
-            end
-            if data.NameGui then
-                data.NameGui.Enabled = ativo and espNameAtivo
-            end
+            if data.Highlight then data.Highlight.Enabled = ativo and espBoxAtivo end
+            if data.NameGui then data.NameGui.Enabled = ativo and espNameAtivo end
             if data.HealthGui and data.Humanoid then
                 data.HealthGui.Enabled = ativo and espHealthAtivo
                 local pct = math.clamp(data.Humanoid.Health / data.Humanoid.MaxHealth, 0, 1)
                 data.HealthFill.Size = UDim2.new(pct, 0, 1, 0)
-                if pct > 0.5 then
-                    data.HealthFill.BackgroundColor3 = COR_VERDE
-                elseif pct > 0.25 then
-                    data.HealthFill.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-                else
-                    data.HealthFill.BackgroundColor3 = COR_VERMELHO2
-                end
+                if pct > 0.5 then data.HealthFill.BackgroundColor3 = COR_VERDE
+                elseif pct > 0.25 then data.HealthFill.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+                else data.HealthFill.BackgroundColor3 = COR_VERMELHO2 end
             end
             if data.DistanceGui and data.HRP then
                 data.DistanceGui.Enabled = ativo and espDistanceAtivo
@@ -720,16 +673,15 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ============ LAYOUT ============
+-- LAYOUT
 local COL_W = 215
 local COL_L = 0
 local COL_R = 225
 
--- BOTÕES PRINCIPAIS
 local btnFly,   _, pillFly,   txtFly,   sideFly,   gFly   = criarBotao("Fly",            COL_L, 0,   COL_W)
 local btnSpeed, _, pillSpeed, txtSpeed, sideSpeed, gSpeed = criarBotao("Speed",          COL_R, 0,   COL_W)
 local btnNoclip,_, pillNoclip,txtNoclip,sideNoclip,gNoclip= criarBotao("Noclip",         COL_L, 48,  COL_W)
-local btnJump,  _, pillJump,  txtJump,  sideJump,  gJump  = criarBotao("Infinite Jump",  COL_R, 48,  COL_W)
+local btnJump,  _, pillJump,  txtJump,  sideJump,  gJump  = criarBotao("Jump Boost",     COL_R, 48,  COL_W)
 local btnTp,    _, pillTp,    txtTp,    sideTp,    gTp    = criarBotao("Click TP",       COL_L, 96,  COL_W)
 local btnReset, _, pillReset, txtReset, sideReset, gReset = criarBotao("Reset",          COL_R, 96,  COL_W)
 
@@ -737,153 +689,163 @@ pillReset.Visible = false
 sideReset.BackgroundColor3 = COR_VERMELHO
 txtReset.TextColor3 = COR_VERMELHO2
 
-btnFly.MouseButton1Click:Connect(function()
-    toggleFly()
-    setStatus(btnFly, pillFly, txtFly, sideFly, gFly, flyAtivo)
-end)
-
-btnSpeed.MouseButton1Click:Connect(function()
-    toggleSpeed()
-    setStatus(btnSpeed, pillSpeed, txtSpeed, sideSpeed, gSpeed, speedAtivo)
-end)
-
-btnNoclip.MouseButton1Click:Connect(function()
-    toggleNoclip()
-    setStatus(btnNoclip, pillNoclip, txtNoclip, sideNoclip, gNoclip, noclipAtivo)
-end)
-
-btnJump.MouseButton1Click:Connect(function()
-    toggleInfJump()
-    setStatus(btnJump, pillJump, txtJump, sideJump, gJump, infJumpAtivo)
-end)
-
-btnTp.MouseButton1Click:Connect(function()
-    toggleClickTp()
-    setStatus(btnTp, pillTp, txtTp, sideTp, gTp, clickTpAtivo)
-end)
-
+btnFly.MouseButton1Click:Connect(function() toggleFly() setStatus(btnFly, pillFly, txtFly, sideFly, gFly, flyAtivo) end)
+btnSpeed.MouseButton1Click:Connect(function() toggleSpeed() setStatus(btnSpeed, pillSpeed, txtSpeed, sideSpeed, gSpeed, speedAtivo) end)
+btnNoclip.MouseButton1Click:Connect(function() toggleNoclip() setStatus(btnNoclip, pillNoclip, txtNoclip, sideNoclip, gNoclip, noclipAtivo) end)
+btnJump.MouseButton1Click:Connect(function() toggleInfJump() setStatus(btnJump, pillJump, txtJump, sideJump, gJump, infJumpAtivo) end)
+btnTp.MouseButton1Click:Connect(function() toggleClickTp() setStatus(btnTp, pillTp, txtTp, sideTp, gTp, clickTpAtivo) end)
 btnReset.MouseButton1Click:Connect(function()
     local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
     if hum then hum.Health = 0 end
 end)
 
--- ============ SLIDER DE VELOCIDADE ============
-local SliderBox = Instance.new("Frame")
-SliderBox.Size = UDim2.new(0, 440, 0, 60)
-SliderBox.Position = UDim2.new(0, 0, 0, 148)
-SliderBox.BackgroundColor3 = COR_FUNDO2
-SliderBox.BorderSizePixel = 0
-SliderBox.ZIndex = 4
-SliderBox.Parent = Content
+-- SLIDERS
+local function criarSlider(titulo, valorInicial, minVal, maxVal, posY, onChange)
+    local box = Instance.new("Frame")
+    box.Size = UDim2.new(1, 0, 0, 68)
+    box.Position = UDim2.new(0, 0, 0, posY)
+    box.BackgroundColor3 = COR_FUNDO2
+    box.BorderSizePixel = 0
+    box.ZIndex = 4
+    box.Parent = Content
+    arredondar(box, 12)
+    gradiente(box, COR_FUNDO2, COR_FUNDO, 90)
 
-arredondar(SliderBox, 12)
-gradiente(SliderBox, COR_FUNDO2, COR_FUNDO, 90)
+    local plusBtn = Instance.new("TextButton")
+    plusBtn.Size = UDim2.new(0, 30, 0, 30)
+    plusBtn.Position = UDim2.new(0, 10, 0, 8)
+    plusBtn.BackgroundColor3 = COR_VERMELHO
+    plusBtn.Text = "➕"
+    plusBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    plusBtn.Font = Enum.Font.GothamBold
+    plusBtn.TextSize = 14
+    plusBtn.AutoButtonColor = false
+    plusBtn.ZIndex = 5
+    plusBtn.Parent = box
+    arredondar(plusBtn, 8)
 
-local sliderLabel = Instance.new("TextLabel")
-sliderLabel.Size = UDim2.new(1, -20, 0, 18)
-sliderLabel.Position = UDim2.new(0, 14, 0, 6)
-sliderLabel.BackgroundTransparency = 1
-sliderLabel.Text = "⚡ Velocidade: " .. SPEED_VALOR
-sliderLabel.TextColor3 = COR_TEXTO
-sliderLabel.Font = Enum.Font.GothamMedium
-sliderLabel.TextSize = 12
-sliderLabel.TextXAlignment = Enum.TextXAlignment.Left
-sliderLabel.ZIndex = 5
-sliderLabel.Parent = SliderBox
+    local minusBtn = Instance.new("TextButton")
+    minusBtn.Size = UDim2.new(0, 30, 0, 30)
+    minusBtn.Position = UDim2.new(1, -40, 0, 8)
+    minusBtn.BackgroundColor3 = COR_VERMELHO
+    minusBtn.Text = "➖"
+    minusBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    minusBtn.Font = Enum.Font.GothamBold
+    minusBtn.TextSize = 14
+    minusBtn.AutoButtonColor = false
+    minusBtn.ZIndex = 5
+    minusBtn.Parent = box
+    arredondar(minusBtn, 8)
 
-local sliderBg = Instance.new("Frame")
-sliderBg.Size = UDim2.new(1, -28, 0, 10)
-sliderBg.Position = UDim2.new(0, 14, 0, 34)
-sliderBg.BackgroundColor3 = Color3.fromRGB(50, 50, 58)
-sliderBg.BorderSizePixel = 0
-sliderBg.ZIndex = 5
-sliderBg.Parent = SliderBox
-arredondar(sliderBg, 10)
+    local track = Instance.new("Frame")
+    track.Size = UDim2.new(1, -100, 0, 10)
+    track.Position = UDim2.new(0, 50, 0, 18)
+    track.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+    track.BorderSizePixel = 0
+    track.ZIndex = 5
+    track.Parent = box
+    arredondar(track, 8)
 
-local sliderFill = Instance.new("Frame")
-sliderFill.Size = UDim2.new(0, 0, 1, 0)
-sliderFill.BackgroundColor3 = COR_VERMELHO
-sliderFill.BorderSizePixel = 0
-sliderFill.ZIndex = 6
-sliderFill.Parent = sliderBg
-arredondar(sliderFill, 10)
-gradiente(sliderFill, COR_VERMELHO2, COR_VERM_ESCURO, 0)
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new(0, 0, 1, 0)
+    fill.BackgroundColor3 = COR_VERMELHO
+    fill.BorderSizePixel = 0
+    fill.ZIndex = 6
+    fill.Parent = track
+    arredondar(fill, 8)
+    gradiente(fill, COR_VERMELHO2, COR_VERM_ESCURO, 0)
 
-local knob = Instance.new("Frame")
-knob.Size = UDim2.new(0, 16, 0, 16)
-knob.Position = UDim2.new(0, 0, 0.5, -8)
-knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-knob.BorderSizePixel = 0
-knob.ZIndex = 7
-knob.Parent = sliderBg
-arredondar(knob, 8)
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 16, 0, 16)
+    knob.Position = UDim2.new(0, 0, 0.5, -8)
+    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    knob.BorderSizePixel = 0
+    knob.ZIndex = 7
+    knob.Parent = track
+    arredondar(knob, 8)
 
-local knobStroke = Instance.new("UIStroke")
-knobStroke.Color = COR_VERMELHO
-knobStroke.Thickness = 2
-knobStroke.Parent = knob
+    local knSt = Instance.new("UIStroke")
+    knSt.Color = COR_VERMELHO
+    knSt.Thickness = 2
+    knSt.Parent = knob
 
-local SPEED_MIN = 16
-local SPEED_MAX = 500
+    local valorLabel = Instance.new("TextLabel")
+    valorLabel.Size = UDim2.new(1, 0, 0, 16)
+    valorLabel.Position = UDim2.new(0, 0, 0, 38)
+    valorLabel.BackgroundTransparency = 1
+    valorLabel.Text = tostring(valorInicial)
+    valorLabel.TextColor3 = COR_TEXTO
+    valorLabel.Font = Enum.Font.GothamBold
+    valorLabel.TextSize = 13
+    valorLabel.ZIndex = 5
+    valorLabel.Parent = box
 
-local pctInicial = (SPEED_VALOR - SPEED_MIN) / (SPEED_MAX - SPEED_MIN)
-sliderFill.Size = UDim2.new(pctInicial, 0, 1, 0)
-knob.Position = UDim2.new(pctInicial, -8, 0.5, -8)
+    local tituloLabel = Instance.new("TextLabel")
+    tituloLabel.Size = UDim2.new(1, 0, 0, 12)
+    tituloLabel.Position = UDim2.new(0, 0, 0, 52)
+    tituloLabel.BackgroundTransparency = 1
+    tituloLabel.Text = titulo
+    tituloLabel.TextColor3 = COR_TEXTO_FRACO
+    tituloLabel.Font = Enum.Font.Gotham
+    tituloLabel.TextSize = 10
+    tituloLabel.ZIndex = 5
+    tituloLabel.Parent = box
 
-local function atualizarSlider(pct)
-    pct = math.clamp(pct, 0, 1)
-    TweenService:Create(sliderFill, TweenInfo.new(0.08), {Size = UDim2.new(pct, 0, 1, 0)}):Play()
-    knob.Position = UDim2.new(pct, -8, 0.5, -8)
-    SPEED_VALOR = math.floor(SPEED_MIN + (SPEED_MAX - SPEED_MIN) * pct)
-    sliderLabel.Text = "⚡ Velocidade: " .. SPEED_VALOR
+    local valor = valorInicial
+    local function atualizar(nv, cb)
+        valor = math.clamp(math.floor(nv), minVal, maxVal)
+        local pct = (valor - minVal) / (maxVal - minVal)
+        fill.Size = UDim2.new(pct, 0, 1, 0)
+        knob.Position = UDim2.new(pct, -8, 0.5, -8)
+        valorLabel.Text = tostring(valor)
+        if cb ~= false then onChange(valor) end
+    end
+
+    plusBtn.MouseButton1Click:Connect(function() atualizar(valor + 5) end)
+    minusBtn.MouseButton1Click:Connect(function() atualizar(valor - 5) end)
+
+    local drag = false
+    local function proc(inp)
+        local absX = track.AbsolutePosition.X
+        local absW = track.AbsoluteSize.X
+        atualizar(minVal + (maxVal - minVal) * math.clamp((inp.Position.X - absX) / absW, 0, 1))
+    end
+
+    knob.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then drag = true end
+    end)
+    UIS.InputChanged:Connect(function(inp)
+        if drag and (inp.UserInputType == Enum.UserInputType.MouseMovement
+        or inp.UserInputType == Enum.UserInputType.Touch) then proc(inp) end
+    end)
+    UIS.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then drag = false end
+    end)
+    track.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then proc(inp) end
+    end)
+
+    atualizar(valorInicial, false)
+    return box
+end
+
+criarSlider("WalkSpeed", SPEED_VALOR, 16, 500, 148, function(v)
+    SPEED_VALOR = v
     if speedAtivo then aplicarSpeed() end
-end
-
-local arrastando = false
-
-local function processarInput(input)
-    local posX = input.Position.X
-    local absPos = sliderBg.AbsolutePosition.X
-    local absSize = sliderBg.AbsoluteSize.X
-    atualizarSlider((posX - absPos) / absSize)
-end
-
-knob.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then
-        arrastando = true
-        TweenService:Create(knob, TweenInfo.new(0.1), {Size = UDim2.new(0, 18, 0, 18)}):Play()
-    end
 end)
 
-UIS.InputChanged:Connect(function(input)
-    if arrastando and (input.UserInputType == Enum.UserInputType.MouseMovement
-    or input.UserInputType == Enum.UserInputType.Touch) then
-        processarInput(input)
-    end
+criarSlider("JumpPower", JUMP_VALOR, 50, 500, 224, function(v)
+    JUMP_VALOR = v
+    if infJumpAtivo then aplicarJump() end
 end)
 
-UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then
-        if arrastando then
-            arrastando = false
-            TweenService:Create(knob, TweenInfo.new(0.1), {Size = UDim2.new(0, 16, 0, 16)}):Play()
-        end
-    end
-end)
-
-sliderBg.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then
-        processarInput(input)
-    end
-end)
-
--- ============ TÍTULO DA SEÇÃO ESP ============
+-- TITULO ESP
 local espTitle = Instance.new("TextLabel")
 espTitle.Size = UDim2.new(1, 0, 0, 20)
-espTitle.Position = UDim2.new(0, 0, 0, 218)
+espTitle.Position = UDim2.new(0, 0, 0, 300)
 espTitle.BackgroundTransparency = 1
 espTitle.Text = "─────  ESP  ─────"
 espTitle.TextColor3 = COR_VERMELHO2
@@ -892,8 +854,8 @@ espTitle.TextSize = 11
 espTitle.ZIndex = 5
 espTitle.Parent = Content
 
--- ============ BOTÃO ESP PRINCIPAL ============
-local btnEsp, _, pillEsp, txtEsp, sideEsp, gEsp = criarBotao("🟢 ESP Personagem", COL_L, 242, 440)
+-- BOTÃO ESP PRINCIPAL
+local btnEsp, _, pillEsp, txtEsp, sideEsp, gEsp = criarBotao("🟢 ESP Personagem", COL_L, 324, 440)
 pillEsp.Visible = false
 
 btnEsp.MouseButton1Click:Connect(function()
@@ -911,22 +873,16 @@ btnEsp.MouseButton1Click:Connect(function()
     end
 end)
 
--- ============ BOTÕES ESP SECUNDÁRIOS ============
-local espY = 292
+local espY = 374
+local btnBox,  _, pillBox,  txtBox,  sideBox,  gBox  = criarBotao("⚫ Box (corpo)",  COL_L, espY,       COL_W)
+local btnLine, _, pillLine, txtLine, sideLine, gLine = criarBotao("⚫ Lines",        COL_R, espY,       COL_W)
+local btnDist, _, pillDist, txtDist, sideDist, gDist = criarBotao("⚫ Distance",     COL_L, espY + 48, COL_W)
+local btnName, _, pillName, txtName, sideName, gName = criarBotao("⚫ Name",         COL_R, espY + 48, COL_W)
+local btnHp,   _, pillHp,   txtHp,   sideHp,   gHp   = criarBotao("⚫ Health",       COL_L, espY + 96, COL_W)
 
-local btnBox,  _, pillBox,  txtBox,  sideBox,  gBox  = criarBotao("⚫ Box (corpo)",   COL_L, espY,               COL_W)
-local btnLine, _, pillLine, txtLine, sideLine, gLine = criarBotao("⚫ Lines",         COL_R, espY,               COL_W)
-local btnDist, _, pillDist, txtDist, sideDist, gDist = criarBotao("⚫ Distance",      COL_L, espY + 48,         COL_W)
-local btnName, _, pillName, txtName, sideName, gName = criarBotao("⚫ Name",          COL_R, espY + 48,         COL_W)
-local btnHp,   _, pillHp,   txtHp,   sideHp,   gHp   = criarBotao("⚫ Health",        COL_L, espY + 96,         COL_W)
+pillBox.Visible, pillLine.Visible, pillDist.Visible = false, false, false
+pillName.Visible, pillHp.Visible = false, false
 
-pillBox.Visible = false
-pillLine.Visible = false
-pillDist.Visible = false
-pillName.Visible = false
-pillHp.Visible = false
-
--- Helper pra togglar visual do botão ESP
 local function toggleEspBtn(btn, side, txt, ativo, nome)
     if ativo then
         TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 45, 25)}):Play()
@@ -941,41 +897,10 @@ local function toggleEspBtn(btn, side, txt, ativo, nome)
     end
 end
 
-btnBox.MouseButton1Click:Connect(function()
-    espBoxAtivo = not espBoxAtivo
-    toggleEspBtn(btnBox, sideBox, txtBox, espBoxAtivo, "Box (corpo)")
-end)
+btnBox.MouseButton1Click:Connect(function() espBoxAtivo = not espBoxAtivo toggleEspBtn(btnBox, sideBox, txtBox, espBoxAtivo, "Box (corpo)") end)
+btnLine.MouseButton1Click:Connect(function() espLineAtivo = not espLineAtivo toggleEspBtn(btnLine, sideLine, txtLine, espLineAtivo, "Lines") end)
+btnDist.MouseButton1Click:Connect(function() espDistanceAtivo = not espDistanceAtivo toggleEspBtn(btnDist, sideDist, txtDist, espDistanceAtivo, "Distance") end)
+btnName.MouseButton1Click:Connect(function() espNameAtivo = not espNameAtivo toggleEspBtn(btnName, sideName, txtName, espNameAtivo, "Name") end)
+btnHp.MouseButton1Click:Connect(function() espHealthAtivo = not espHealthAtivo toggleEspBtn(btnHp, sideHp, txtHp, espHealthAtivo, "Health") end)
 
-btnLine.MouseButton1Click:Connect(function()
-    espLineAtivo = not espLineAtivo
-    toggleEspBtn(btnLine, sideLine, txtLine, espLineAtivo, "Lines")
-end)
-
-btnDist.MouseButton1Click:Connect(function()
-    espDistanceAtivo = not espDistanceAtivo
-    toggleEspBtn(btnDist, sideDist, txtDist, espDistanceAtivo, "Distance")
-end)
-
-btnName.MouseButton1Click:Connect(function()
-    espNameAtivo = not espNameAtivo
-    toggleEspBtn(btnName, sideName, txtName, espNameAtivo, "Name")
-end)
-
-btnHp.MouseButton1Click:Connect(function()
-    espHealthAtivo = not espHealthAtivo
-    toggleEspBtn(btnHp, sideHp, txtHp, espHealthAtivo, "Health")
-end)
-
--- ============ RODAPÉ ============
-local Footer = Instance.new("TextLabel")
-Footer.Size = UDim2.new(1, -20, 0, 18)
-Footer.Position = UDim2.new(0, 10, 1, -24)
-Footer.BackgroundTransparency = 1
-Footer.Text = "made with ❤  •  Dudu Panel Universal"
-Footer.TextColor3 = COR_TEXTO_FRACO
-Footer.Font = Enum.Font.Gotham
-Footer.TextSize = 10
-Footer.ZIndex = 4
-Footer.Parent = Frame
-
-print("[Dudu Panel] Carregado com sucesso! 🎯")
+print("[Dudu Panel Universal] Carregado com sucesso! 🎯")
