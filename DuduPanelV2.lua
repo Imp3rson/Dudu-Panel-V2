@@ -1,4 +1,4 @@
--- Dudu Panel Universal V2 - Atualizado
+-- Dudu Panel Universal V3
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
@@ -6,7 +6,6 @@ local TweenService = game:GetService("TweenService")
 local LP = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- PALETA
 local COR_FUNDO       = Color3.fromRGB(18, 18, 20)
 local COR_FUNDO2      = Color3.fromRGB(24, 24, 28)
 local COR_BARRA       = Color3.fromRGB(30, 30, 36)
@@ -199,7 +198,6 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
--- SCROLLING CONTENT
 local Content = Instance.new("ScrollingFrame")
 Content.Size = UDim2.new(1, -20, 1, -70)
 Content.Position = UDim2.new(0, 10, 0, 58)
@@ -208,7 +206,7 @@ Content.BorderSizePixel = 0
 Content.ScrollBarThickness = 4
 Content.ScrollBarImageColor3 = COR_VERMELHO
 Content.ScrollingDirection = Enum.ScrollingDirection.Y
-Content.CanvasSize = UDim2.new(0, 0, 0, 720)
+Content.CanvasSize = UDim2.new(0, 0, 0, 640)
 Content.ZIndex = 4
 Content.Active = true
 Content.Parent = Frame
@@ -225,6 +223,125 @@ closeBtn.MouseButton1Click:Connect(function()
     Frame.Visible = false
     ToggleBtn.Text = "☰"
 end)
+
+-- SUB-PAINEL INVISIBLE
+local InvPanel = Instance.new("Frame")
+InvPanel.Size = UDim2.new(0, 220, 0, 110)
+InvPanel.Position = UDim2.new(0, 500, 0, 165)
+InvPanel.BackgroundColor3 = COR_FUNDO
+InvPanel.BorderSizePixel = 0
+InvPanel.Visible = false
+InvPanel.Active = true
+InvPanel.ZIndex = 20
+InvPanel.Parent = ScreenGui
+arredondar(InvPanel, 14)
+gradiente(InvPanel, COR_FUNDO2, COR_FUNDO, 90)
+
+local invBorda = Instance.new("UIStroke")
+invBorda.Color = COR_VERMELHO
+invBorda.Thickness = 1.5
+invBorda.Transparency = 0.5
+invBorda.Parent = InvPanel
+
+local InvHeader = Instance.new("Frame")
+InvHeader.Size = UDim2.new(1, 0, 0, 30)
+InvHeader.BackgroundColor3 = COR_BARRA
+InvHeader.BorderSizePixel = 0
+InvHeader.Active = true
+InvHeader.ZIndex = 21
+InvHeader.Parent = InvPanel
+
+local invHCorner = Instance.new("UICorner")
+invHCorner.CornerRadius = UDim.new(0, 14)
+invHCorner.Parent = InvHeader
+
+local invHFix = Instance.new("Frame")
+invHFix.Size = UDim2.new(1, 0, 0.5, 0)
+invHFix.Position = UDim2.new(0, 0, 0.5, 0)
+invHFix.BackgroundColor3 = COR_BARRA
+invHFix.BorderSizePixel = 0
+invHFix.ZIndex = 21
+invHFix.Parent = InvHeader
+
+gradiente(InvHeader, COR_VERM_ESCURO, COR_BARRA, 90)
+
+local invStripe = Instance.new("Frame")
+invStripe.Size = UDim2.new(1, 0, 0, 2)
+invStripe.Position = UDim2.new(0, 0, 1, -2)
+invStripe.BackgroundColor3 = COR_VERMELHO
+invStripe.BorderSizePixel = 0
+invStripe.ZIndex = 22
+invStripe.Parent = InvHeader
+gradiente(invStripe, COR_VERMELHO2, COR_VERM_ESCURO, 0)
+
+local InvTitle = Instance.new("TextLabel")
+InvTitle.Size = UDim2.new(1, -40, 1, 0)
+InvTitle.Position = UDim2.new(0, 10, 0, 0)
+InvTitle.BackgroundTransparency = 1
+InvTitle.Text = "Invisible"
+InvTitle.TextColor3 = COR_VERMELHO2
+InvTitle.Font = Enum.Font.GothamBold
+InvTitle.TextSize = 12
+InvTitle.TextXAlignment = Enum.TextXAlignment.Center
+InvTitle.ZIndex = 23
+InvTitle.Parent = InvHeader
+
+local invCloseBtn = Instance.new("TextButton")
+invCloseBtn.Size = UDim2.new(0, 20, 0, 20)
+invCloseBtn.Position = UDim2.new(1, -24, 0.5, -10)
+invCloseBtn.BackgroundColor3 = Color3.fromRGB(50, 20, 24)
+invCloseBtn.BorderSizePixel = 0
+invCloseBtn.Text = "✕"
+invCloseBtn.TextColor3 = COR_VERMELHO2
+invCloseBtn.Font = Enum.Font.GothamBold
+invCloseBtn.TextSize = 11
+invCloseBtn.AutoButtonColor = false
+invCloseBtn.ZIndex = 23
+invCloseBtn.Parent = InvHeader
+arredondar(invCloseBtn, 6)
+
+invCloseBtn.MouseButton1Click:Connect(function()
+    InvPanel.Visible = false
+end)
+
+-- drag sub panel
+InvHeader.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        local invStart = input.Position
+        local invStartPos = InvPanel.Position
+        local moveConn, endConn
+        moveConn = UIS.InputChanged:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseMovement
+            or inp.UserInputType == Enum.UserInputType.Touch then
+                local delta = inp.Position - invStart
+                InvPanel.Position = UDim2.new(invStartPos.X.Scale, invStartPos.X.Offset + delta.X,
+                                              invStartPos.Y.Scale, invStartPos.Y.Offset + delta.Y)
+            end
+        end)
+        endConn = UIS.InputEnded:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1
+            or inp.UserInputType == Enum.UserInputType.Touch then
+                if moveConn then moveConn:Disconnect() end
+                if endConn then endConn:Disconnect() end
+            end
+        end)
+    end
+end)
+
+local btnInvToggle = Instance.new("TextButton")
+btnInvToggle.Size = UDim2.new(1, -20, 0, 46)
+btnInvToggle.Position = UDim2.new(0, 10, 0, 42)
+btnInvToggle.BackgroundColor3 = COR_PRETO
+btnInvToggle.BorderSizePixel = 0
+btnInvToggle.Text = "⚫ Invisible"
+btnInvToggle.TextColor3 = COR_TEXTO
+btnInvToggle.Font = Enum.Font.GothamMedium
+btnInvToggle.TextSize = 12
+btnInvToggle.AutoButtonColor = false
+btnInvToggle.ZIndex = 22
+btnInvToggle.Parent = InvPanel
+arredondar(btnInvToggle, 10)
 
 local function criarBotao(texto, posX, posY, largura)
     local btn = Instance.new("TextButton")
@@ -311,8 +428,8 @@ local function setStatus(btn, pill, pillLabel, side, g, ativo)
     end
 end
 
--- ESTADOS
 local flyAtivo, speedAtivo, infJumpAtivo, noclipAtivo, clickTpAtivo = false, false, false, false, false
+local invisAtivo = false
 local SPEED_VALOR = 100
 local JUMP_VALOR = 50
 
@@ -374,22 +491,18 @@ local function toggleFly()
         if UIS:IsKeyDown(Enum.KeyCode.A) then move -= camCFrame.RightVector end
         if UIS:IsKeyDown(Enum.KeyCode.D) then move += camCFrame.RightVector end
 
-        -- MOBILE: joystick via MoveDirection
+        -- Mobile: joystick
         local md = hum.MoveDirection
-        if md.Magnitude > 0.1 then
-            -- MoveDirection já vem em world coords alinhada com a câmera
-            move += md
-        end
-
-        -- Vertical
-        local vertical = 0
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then vertical = 1 end
-        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then vertical = -1 end
-        if hum.Jump then vertical = 1 end
+        if md.Magnitude > 0.1 then move += md end
 
         move = Vector3.new(move.X, 0, move.Z)
-        local finalMove = move + Vector3.new(0, vertical, 0)
 
+        -- Vertical (Space sobe, Ctrl desce)
+        local vertical = 0
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then vertical = 1 end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) or UIS:IsKeyDown(Enum.KeyCode.RightControl) then vertical = -1 end
+
+        local finalMove = move + Vector3.new(0, vertical, 0)
         if finalMove.Magnitude > 0.1 then
             flyBV.Velocity = finalMove.Unit * 80
         else
@@ -399,12 +512,10 @@ local function toggleFly()
     end)
 end
 
--- SPEED + JUMP
+-- SPEED/JUMP
 local function aplicarSpeed()
     local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
-    if hum then
-        hum.WalkSpeed = speedAtivo and SPEED_VALOR or 16
-    end
+    if hum then hum.WalkSpeed = speedAtivo and SPEED_VALOR or 16 end
 end
 
 local function aplicarJump()
@@ -415,15 +526,8 @@ local function aplicarJump()
     end
 end
 
-local function toggleSpeed()
-    speedAtivo = not speedAtivo
-    aplicarSpeed()
-end
-
-local function toggleInfJump()
-    infJumpAtivo = not infJumpAtivo
-    aplicarJump()
-end
+local function toggleSpeed() speedAtivo = not speedAtivo aplicarSpeed() end
+local function toggleInfJump() infJumpAtivo = not infJumpAtivo aplicarJump() end
 
 LP.CharacterAdded:Connect(function()
     task.wait(1)
@@ -476,7 +580,6 @@ local function criarClickTpTool()
     tool.CanBeDropped = false
     tool.TextureId = "rbxassetid://6031091004"
     tool.Parent = LP.Backpack
-
     tool.Activated:Connect(function()
         if not clickTpAtivo then return end
         local mouse = LP:GetMouse()
@@ -493,7 +596,6 @@ local function criarClickTpTool()
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if hrp then hrp.CFrame = CFrame.new(alvo) end
     end)
-
     clickTpTool = tool
     task.wait(0.1)
     local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
@@ -514,6 +616,60 @@ LP.CharacterAdded:Connect(function()
     if clickTpAtivo then criarClickTpTool() end
 end)
 
+-- INVISIBLE
+local invisibilidade = {}
+
+local function aplicarInvis()
+    local char = LP.Character
+    if not char then return end
+    for _, parte in ipairs(char:GetDescendants()) do
+        if parte:IsA("BasePart") or parte:IsA("Decal") or parte:IsA("Texture") then
+            if invisAtivo then
+                if invisibilidade[parte] == nil then
+                    invisibilidade[parte] = parte.Transparency
+                end
+                parte.Transparency = 1
+            else
+                if invisibilidade[parte] ~= nil then
+                    parte.Transparency = invisibilidade[parte]
+                end
+            end
+        end
+    end
+end
+
+local function toggleInvis()
+    invisAtivo = not invisAtivo
+    aplicarInvis()
+    if invisAtivo then
+        TweenService:Create(btnInvToggle, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 45, 25)}):Play()
+        btnInvToggle.Text = "🟢 Invisible"
+        btnInvToggle.TextColor3 = COR_VERDE_CLARO
+    else
+        TweenService:Create(btnInvToggle, TweenInfo.new(0.2), {BackgroundColor3 = COR_PRETO}):Play()
+        btnInvToggle.Text = "⚫ Invisible"
+        btnInvToggle.TextColor3 = COR_TEXTO
+    end
+end
+
+btnInvToggle.MouseButton1Click:Connect(toggleInvis)
+
+-- reaplica invis ao respawn
+LP.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    if invisAtivo then
+        invisibilidade = {}
+        aplicarInvis()
+    end
+    -- monitora novas partes
+    char.DescendantAdded:Connect(function(parte)
+        if invisAtivo and (parte:IsA("BasePart") or parte:IsA("Decal") or parte:IsA("Texture")) then
+            invisibilidade[parte] = parte.Transparency
+            parte.Transparency = 1
+        end
+    end)
+end)
+
 -- ESP
 local espObjects = {}
 
@@ -531,7 +687,7 @@ local function criarEspParaPlayer(player)
         local data = {}
 
         local highlight = Instance.new("Highlight")
-        highlight.FillTransparency = 0.7
+        highlight.FillTransparency = 0.6
         highlight.OutlineTransparency = 0
         highlight.FillColor = COR_VERMELHO
         highlight.OutlineColor = COR_VERMELHO2
@@ -578,12 +734,13 @@ local function criarEspParaPlayer(player)
         data.DistanceGui = distGui
         data.DistanceLabel = distLabel
 
+        -- HEALTH BAR ABAIXO DO PERSONAGEM
         local healthGui = Instance.new("BillboardGui")
-        healthGui.Size = UDim2.new(0, 100, 0, 6)
-        healthGui.StudsOffset = Vector3.new(0, 3.7, 0)
+        healthGui.Size = UDim2.new(0, 100, 0, 7)
+        healthGui.StudsOffset = Vector3.new(0, -3, 0)
         healthGui.AlwaysOnTop = true
         healthGui.Enabled = false
-        healthGui.Parent = head
+        healthGui.Parent = hrp
         local healthBg = Instance.new("Frame")
         healthBg.Size = UDim2.new(1, 0, 1, 0)
         healthBg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -599,11 +756,12 @@ local function criarEspParaPlayer(player)
         data.HealthGui = healthGui
         data.HealthFill = healthFill
 
+        -- LINE (ScreenGui frame)
         local lineGui = Instance.new("Frame")
-        lineGui.Size = UDim2.new(0, 2, 0, 0)
+        lineGui.Size = UDim2.new(0, 1, 0, 1)
         lineGui.BackgroundColor3 = COR_VERMELHO2
         lineGui.BorderSizePixel = 0
-        lineGui.AnchorPoint = Vector2.new(0.5, 1)
+        lineGui.AnchorPoint = Vector2.new(0, 0.5)
         lineGui.ZIndex = 2
         lineGui.Visible = false
         lineGui.Parent = ScreenGui
@@ -637,6 +795,9 @@ Players.PlayerAdded:Connect(criarEspParaPlayer)
 Players.PlayerRemoving:Connect(removerEspDePlayer)
 
 RunService.RenderStepped:Connect(function()
+    local myChar = LP.Character
+    local myHead = myChar and myChar:FindFirstChild("Head")
+
     for player, data in pairs(espObjects) do
         if player ~= LP and data.Character and data.Character.Parent then
             local ativo = espAtivo
@@ -657,16 +818,31 @@ RunService.RenderStepped:Connect(function()
                     data.DistanceLabel.Text = "[" .. math.floor(dist) .. "m]"
                 end
             end
-            if data.LineGui and data.Head then
-                data.LineGui.Visible = ativo and espLineAtivo
-                if espLineAtivo then
-                    local headPos, onScreen = Camera:WorldToViewportPoint(data.Head.Position)
-                    if onScreen then
-                        data.LineGui.Position = UDim2.new(0, headPos.X, 1, 0)
-                        data.LineGui.Size = UDim2.new(0, 2, 0, headPos.Y)
+
+            -- LINES: da minha cabeça até o tronco do player
+            if data.LineGui then
+                if ativo and espLineAtivo and myHead and data.HRP then
+                    local fromPos, fromOn = Camera:WorldToViewportPoint(myHead.Position)
+                    local toPos, toOn = Camera:WorldToViewportPoint(data.HRP.Position)
+
+                    if fromOn or toOn then
+                        local delta = Vector2.new(toPos.X - fromPos.X, toPos.Y - fromPos.Y)
+                        local length = delta.Magnitude
+                        if length > 0 then
+                            local angle = math.deg(math.atan2(delta.Y, delta.X))
+                            data.LineGui.AnchorPoint = Vector2.new(0, 0.5)
+                            data.LineGui.Position = UDim2.new(0, fromPos.X, 0, fromPos.Y)
+                            data.LineGui.Size = UDim2.new(0, length, 0, 1)
+                            data.LineGui.Rotation = angle
+                            data.LineGui.Visible = true
+                        else
+                            data.LineGui.Visible = false
+                        end
                     else
                         data.LineGui.Visible = false
                     end
+                else
+                    data.LineGui.Visible = false
                 end
             end
         end
@@ -684,10 +860,14 @@ local btnNoclip,_, pillNoclip,txtNoclip,sideNoclip,gNoclip= criarBotao("Noclip",
 local btnJump,  _, pillJump,  txtJump,  sideJump,  gJump  = criarBotao("Jump Boost",     COL_R, 48,  COL_W)
 local btnTp,    _, pillTp,    txtTp,    sideTp,    gTp    = criarBotao("Click TP",       COL_L, 96,  COL_W)
 local btnReset, _, pillReset, txtReset, sideReset, gReset = criarBotao("Reset",          COL_R, 96,  COL_W)
+local btnInv,   _, pillInv,   txtInv,   sideInv,   gInv   = criarBotao("Invisible",      COL_L, 144, 440)
 
 pillReset.Visible = false
 sideReset.BackgroundColor3 = COR_VERMELHO
 txtReset.TextColor3 = COR_VERMELHO2
+pillInv.Visible = false
+sideInv.BackgroundColor3 = COR_VERMELHO
+txtInv.TextColor3 = COR_VERMELHO2
 
 btnFly.MouseButton1Click:Connect(function() toggleFly() setStatus(btnFly, pillFly, txtFly, sideFly, gFly, flyAtivo) end)
 btnSpeed.MouseButton1Click:Connect(function() toggleSpeed() setStatus(btnSpeed, pillSpeed, txtSpeed, sideSpeed, gSpeed, speedAtivo) end)
@@ -697,6 +877,10 @@ btnTp.MouseButton1Click:Connect(function() toggleClickTp() setStatus(btnTp, pill
 btnReset.MouseButton1Click:Connect(function()
     local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
     if hum then hum.Health = 0 end
+end)
+
+btnInv.MouseButton1Click:Connect(function()
+    InvPanel.Visible = not InvPanel.Visible
 end)
 
 -- SLIDERS
@@ -832,12 +1016,12 @@ local function criarSlider(titulo, valorInicial, minVal, maxVal, posY, onChange)
     return box
 end
 
-criarSlider("WalkSpeed", SPEED_VALOR, 16, 500, 148, function(v)
+criarSlider("WalkSpeed", SPEED_VALOR, 16, 500, 196, function(v)
     SPEED_VALOR = v
     if speedAtivo then aplicarSpeed() end
 end)
 
-criarSlider("JumpPower", JUMP_VALOR, 50, 500, 224, function(v)
+criarSlider("JumpPower", JUMP_VALOR, 50, 500, 272, function(v)
     JUMP_VALOR = v
     if infJumpAtivo then aplicarJump() end
 end)
@@ -845,7 +1029,7 @@ end)
 -- TITULO ESP
 local espTitle = Instance.new("TextLabel")
 espTitle.Size = UDim2.new(1, 0, 0, 20)
-espTitle.Position = UDim2.new(0, 0, 0, 300)
+espTitle.Position = UDim2.new(0, 0, 0, 348)
 espTitle.BackgroundTransparency = 1
 espTitle.Text = "─────  ESP  ─────"
 espTitle.TextColor3 = COR_VERMELHO2
@@ -854,8 +1038,7 @@ espTitle.TextSize = 11
 espTitle.ZIndex = 5
 espTitle.Parent = Content
 
--- BOTÃO ESP PRINCIPAL
-local btnEsp, _, pillEsp, txtEsp, sideEsp, gEsp = criarBotao("🟢 ESP Personagem", COL_L, 324, 440)
+local btnEsp, _, pillEsp, txtEsp, sideEsp, gEsp = criarBotao("🟢 ESP Personagem", COL_L, 372, 440)
 pillEsp.Visible = false
 
 btnEsp.MouseButton1Click:Connect(function()
@@ -873,7 +1056,7 @@ btnEsp.MouseButton1Click:Connect(function()
     end
 end)
 
-local espY = 374
+local espY = 422
 local btnBox,  _, pillBox,  txtBox,  sideBox,  gBox  = criarBotao("⚫ Box (corpo)",  COL_L, espY,       COL_W)
 local btnLine, _, pillLine, txtLine, sideLine, gLine = criarBotao("⚫ Lines",        COL_R, espY,       COL_W)
 local btnDist, _, pillDist, txtDist, sideDist, gDist = criarBotao("⚫ Distance",     COL_L, espY + 48, COL_W)
@@ -903,4 +1086,4 @@ btnDist.MouseButton1Click:Connect(function() espDistanceAtivo = not espDistanceA
 btnName.MouseButton1Click:Connect(function() espNameAtivo = not espNameAtivo toggleEspBtn(btnName, sideName, txtName, espNameAtivo, "Name") end)
 btnHp.MouseButton1Click:Connect(function() espHealthAtivo = not espHealthAtivo toggleEspBtn(btnHp, sideHp, txtHp, espHealthAtivo, "Health") end)
 
-print("[Dudu Panel Universal] Carregado com sucesso! 🎯")
+print("[Dudu Panel Universal V3] Carregado! 🎯")
